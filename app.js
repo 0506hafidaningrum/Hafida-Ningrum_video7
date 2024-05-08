@@ -1,49 +1,83 @@
-// Xore module
-// File System
-const fs = require('fs') ;
+const yargs = require('yargs');
+const contacts = require('./contacts');
 
-// menuliskan string ke file (synchronus)
-// try {
-// fs.writeFileSync('data/test.txt', 'Hello World secara synchronous!'); 
-// } catch (e) {
-//     console.log(e);
-// }
+yargs.command({
+    command: 'add', 
+    describe: 'Menambahkan contact baru' ,
+    builder : {
+        nama: {
+            describe: 'Nama lengkap',
+            demandOption: false,
+            type: 'string',
+        },
+        noHP: {
+            describe: 'Nomor Handphone',
+            demandOption: true,
+            type: 'srting',
+        },
+    },
+    handler(argv) {
+        contacts.simpanContact(argv.nama, argv.email, argv.noHP);
+    }, 
+})
+.demandCommand();
 
-// menuliskan string ke file (asynchronus)
-// fs.writeFile('data/test.txt', 'Hello Worls secar Ansynchronus', (e) => {
-//     console.log(e);
-// });
-
-// membaca isi file (synchronus)
-// const data = fs.readFileSync('data/test.txt', 'utf-8');
-// console.log(data);
-
-// membaca isi file (asynchronus)
-// fs.readFile('data/test.txt', 'utf-8', (err, data) => {
-//     if (err) throw err;
-//     console.log(data);
-// });
-
-// Readline
-const readline = require('readline');
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
+// menampilkan daftar semua nama contact
+yargs.command({
+    command: 'list', 
+    describe: 'Menampilkan semua nama & no HP contact' ,
+    handler() { 
+        contacts.listContact();
+    },
 });
 
-rl.question('Masukkan nama anda : ', (nama) => {
-    rl.question('Masukkan no HP anda : ', (noHP) => {
-      const contact = { nama, noHP };
-      const file = fs.readFileSync('data/contacts.json', 'utf-8');
-      const contacts = JSON.parse(file);
-
-      contacts.push(contact);
-
-      fs.writeFileSync('data/contacts.json', JSON.stringify(contacts));
-
-      console.log('Terimakasih sudah memasukkan data.');
-      
-       rl.close(); 
-    });
+// menampilan detail sebuah contact
+yargs.command({
+    command: 'detail', 
+    describe: 'Menampilkan detail sebuah contact berdasarkan nama' ,
+    builder: {
+        nama: {
+            describe: 'Nama lengkap',
+            demandOption: true,
+            type: 'string',
+        },
+    },
+    handler(argv) { 
+        contacts.detailContact(argv.nama);
+    },
 });
+
+// menghapus kontak berdasarkan nama
+yargs.command({
+    command: 'delete', 
+    describe: 'Menghapus  sebuah contact berdasarkan nama' ,
+    builder: {
+        nama: {
+            describe: 'Nama lengkap',
+            demandOption: true,
+            type: 'string',
+        },
+    },
+    handler(argv) { 
+        contacts.deleteContact(argv.nama);
+    },
+});
+
+yargs.parse();
+
+//mengambil argumen dari commond line
+// const commond = process.argv[2];
+// if(commond === 'add') {}
+
+// const contacts = require('./contacts');
+
+// const main = async () => {
+//     const nama = await contacts.tulisPertanyaan('Masukkan nama anda :');
+//     const email = await contacts.tulisPertanyaan('Masukkan email anda :');
+//     const noHP = await contacts.tulisPertanyaan('Masukkan noHP anda :');
+
+//     contacts.simpanContact(nama, email, noHP);
+// };
+
+// main();
 
